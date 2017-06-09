@@ -35,7 +35,6 @@ class ClientThread(threading.Thread):
 
             if cmd_list[0]== 'get':
 
-
                 file_manager.send_file(self.client_sock, cmd_list)
 
             if cmd_list[0]== 'cd':
