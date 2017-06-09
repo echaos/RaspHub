@@ -17,22 +17,40 @@ class ClientThread(threading.Thread):
         if line:
             print line
             cmd_list = line.split()
-            cmd = cmd_list[0]
-            print cmd
-            if cmd == 'disk':
+            print cmd_list[0]
+
+            if cmd_list[0] == 'disk':
                 #Check the disk info.
-                #Send the name of the disk and wether it is mounted.
                 if mutex.acquire():
-                    file_manager.send_partitionlist(self.client_sock)
+                    file_manager.send_devicelist(self.client_sock)
                     mutex.release()
                 
                 pass
 
-            if cmd == 'get':
-                file_manager.send_file(self.client_sock, cmd_list[1])
+            if cmd_list[0] == 'df':
 
-            if cmd == 'exit':
+                if mutex.acquire():
+                    file_manager.send_basic_partitioninfo(self.client_sock)
+                    mutex.release()
+
+            if cmd_list[0]== 'get':
+
+
+                file_manager.send_file(self.client_sock, cmd_list)
+
+            if cmd_list[0]== 'cd':
+                file_manager.cd(self.client_sock, cmd_list)
+
+
+
+            if cmd_list[0] == 'pwd':
+
+                file_manager.send_current_directory(self.client_sock)
+
+            if cmd_list[0] == 'exit':
                 os._exit(0)
+
+
 
 
         

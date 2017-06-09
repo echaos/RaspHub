@@ -2,16 +2,22 @@
 import socket
 from sock import *
 
-def print_list(sock):
+def feedback(sock):
     n = int(sock.recv())
 
-    sock.send('ok')
+    if n == 0:
+        print sock.recv()
 
-    for i in range(n):
-        print len(sock.recv())
-        print '|'
-        print i
-        print ''
+    elif n > 0:
+
+        sock.send('ok')
+
+        for i in range(n):
+            print sock.recv()
+
+    else:
+        print 'Error'
+        print sock.recv() # Receive message
 
 
 
@@ -26,11 +32,23 @@ def main():
 
         if cmd == 'disk':
             sock.send('disk')
-            print_list(sock)
+            feedback(sock)
+
+        if cmd == 'df':
+            sock.send('df')
+            feedback(sock)
 
         if cmd.split()[0] == 'get':
-            sock.send('get'+cmd.split()[1])
-            print_list(sock)
+            sock.send('get '+cmd.split()[1])
+            feedback(sock)
+
+        if cmd == 'pwd':
+            sock.send(cmd)
+            print sock.recv()
+
+        if cmd.split()[0] == 'cd':
+            sock.send('cd '+cmd.split()[1])
+            feedback(sock)
 
         if cmd == 'exit':
             sock.send('exit')

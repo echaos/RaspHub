@@ -29,3 +29,9 @@ class Sock():
 
         return data
 
+    def senderr(self,e):
+        self.send('-1')
+        self.send(e.message)
+
+        
+
