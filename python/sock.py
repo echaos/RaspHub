@@ -1,4 +1,6 @@
+#!/bin/python2
 import struct
+import socket
 
 class Sock():
     
@@ -33,5 +35,27 @@ class Sock():
         self.send('-1')
         self.send(e.message)
 
+
+    @staticmethod
+    def broadcast():
+        msg = socket.gethostbyname(socket.gethostname())
+        print msg
+        destination = ('233.233.233.233',13135)
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # s.bind(('',0))
+        # s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        s.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 20)
+
+
+        while True:
+
+            s.sendto(msg, destination)
+#             (buf, address) = s.recvfrom(10100)
+            # if not len(buff):
+                # break
+
         
+if __name__ == "__main__":
+    Sock.broadcast()
+
 
