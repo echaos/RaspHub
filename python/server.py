@@ -70,6 +70,7 @@ def start_server():
 
     while True: #Loop
         (client_socket, address) = server_socket.accept() #When server accept a client
+        print address
         ctthread = ClientThread(client_socket, address)   #Init a thread
         ctthread.start() #Start a thread
 
