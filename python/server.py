@@ -29,28 +29,27 @@ class ClientThread(threading.Thread):
                 
                 pass
 
-            else if cmd_list[0] == 'df':
-
+            elif cmd_list[0] == 'df':
                 if mutex.acquire():
                     file_manager.send_basic_partitioninfo(self.client_sock)
                     mutex.release()
 
-            else if cmd_list[0]== 'get':
+            elif cmd_list[0] == 'get':
                 file_manager.send_file(self.client_sock, cmd_list)
 
-            else if cmd_list[0]== 'cd':
+            elif cmd_list[0] == 'cd':
                 file_manager.cd(self.client_sock, cmd_list)
 
-            else if cmd_list[0] == 'pwd':
+            elif cmd_list[0] == 'pwd':
                 file_manager.send_current_directory(self.client_sock)
 
-            else if cmd_list[0] = 'ls':
+            elif cmd_list[0] == 'ls':
                 if len(cmd_list) > 1:
                     file_manager.send_filelist(self.client_sock, cmd_list[1])
                 else:
                     file_manager.send_currentfilelist(self.client_sock)
 
-            else if cmd_list[0] == 'exit':
+            elif cmd_list[0] == 'exit':
                 self.status.value = False
                 os._exit(0)
 
