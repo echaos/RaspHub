@@ -6,6 +6,7 @@ from multiprocessing import Process, Manager
 from sock import Sock
 from disk import Disk, PartitionInfo
 from remote_file_manager import RemoteFileManager
+from config import Config
     
 class ClientThread(threading.Thread):
     def __init__(self, client_socket, client_addr, status):
@@ -20,35 +21,40 @@ class ClientThread(threading.Thread):
             cmd_list = line.split()
             print cmd_list[0]
 
+            #Check the disk info.
             if cmd_list[0] == 'disk':
-                #Check the disk info.
                 if mutex.acquire():
+                    #Lock and process
                     file_manager.send_devicelist(self.client_sock)
                     mutex.release()
-
-                
                 pass
 
+            #Check partition info
             elif cmd_list[0] == 'df':
                 if mutex.acquire():
                     file_manager.send_basic_partitioninfo(self.client_sock)
                     mutex.release()
 
+            #Get file
             elif cmd_list[0] == 'get':
                 file_manager.send_file(self.client_sock, cmd_list)
 
+            #Enter a given directory
             elif cmd_list[0] == 'cd':
                 file_manager.cd(self.client_sock, cmd_list)
 
+            #Return the current directory
             elif cmd_list[0] == 'pwd':
                 file_manager.send_current_directory(self.client_sock)
 
+            #List files and directories
             elif cmd_list[0] == 'ls':
                 if len(cmd_list) > 1:
                     file_manager.send_filelist(self.client_sock, cmd_list[1])
                 else:
                     file_manager.send_currentfilelist(self.client_sock)
 
+            #Shutdown the sever
             elif cmd_list[0] == 'exit':
                 self.status.value = False
                 os._exit(0)
@@ -57,8 +63,6 @@ class ClientThread(threading.Thread):
                 pass
 
     def run(self):
-        
-
         while True:
             msg = self.client_sock.recv()
             self.parseCommand(msg)
@@ -68,13 +72,9 @@ class ClientThread(threading.Thread):
 
 def start_server(status):
     print 'Server started.'
-    
-    
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Init TCP socket
-    server_socket.bind(('',13136)) #Bind address and port
+    server_socket.bind(('',int(Config.get("SERVER_PORT")))) #Bind address and port
     server_socket.listen(5) #Listen 
-
-
 
     while True: #Loop
         (client_socket, address) = server_socket.accept() #When server accept a client
@@ -83,41 +83,34 @@ def start_server(status):
         ctthread.start() #Start a thread
 
 def broadcast(status):
-        msg = socket.gethostbyname(socket.gethostname())
+        msg = Sock.get_ip_addr(Config.get("NETWORK_INTERFACE"))
         print msg
-        destination = ('233.233.233.233',13135)
+        destination = (Config.get("BROADCAST_ADDRESS"),int(Config.get("BROADCAST_PORT")))
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # s.bind(('',0))
-        # s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         s.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 20)
 
         while True:
-            
             if status.value == False:
                 print "Running status:"+str(status.value)
                 break
 
             s.sendto(msg, destination)
-#             (buf, address) = s.recvfrom(10100)
-            # if not len(buff):
-                # break
-
 
 def main():
     global file_manager
     global mutex
     global is_running
-    manager = Manager()
 
+    manager = Manager()                     #Manager helps to handle shared variables between the process
     file_manager = RemoteFileManager() 
-    mutex = threading.Lock()                #Lock
+    mutex = threading.Lock()                #Create a threading Lock
     is_running = manager.Value('b', True)   #Shared process running state
     
     server_broadcast = Process(target=broadcast, args=(is_running,))
     server = Process(target=start_server, args=(is_running,))
-    server_broadcast.start()
-    server.start()
 
+    server_broadcast.start()                #Start broadcasting
+    server.start()                          #Start server
     server_broadcast.join()
     server.join()
 

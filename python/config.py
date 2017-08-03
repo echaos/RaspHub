@@ -1,9 +1,11 @@
+import sys
+DEFAULT_FILE = 'rasphub.conf'
 class Config():
     
     instance = None
 
     def __init__(self):
-        self.name = 'rasphub.conf'
+        self.name = DEFAULT_FILE
         self.configmap = dict()
         self._load()
         pass
@@ -15,9 +17,27 @@ class Config():
 
         return Config.instance
 
+    @staticmethod
+    def get(key):
+        return Config.config().valueof(key)
+
     def _load(self):
-        configfile = open(self.name, 'r')
+        try:
+            configfile = open(self.name, 'r')
+        except IOError as e:
+            print str(e)
+        except:
+            print 'Unexcepted error', sys.exc_info()[0]
+
         for line in configfile:
+
+            #Ignore empty lines
+            if not line:
+                continue
+
+            #Ignore comments in the configuration file
+            if line[0] == '#':
+                continue
 
             #Delete whitespace
             line = line.strip()
@@ -31,9 +51,10 @@ class Config():
                     self.configmap[params[i-1]] = params[i+1]
 
     def valueof(self,key):
+        if not key in self.configmap.keys():
+            raise Exception(key+" is not an entry inside your rasphub.conf file")
         return self.configmap[key]
             
-
 
 def main():
     print Config.config().valueof('mountpoint')

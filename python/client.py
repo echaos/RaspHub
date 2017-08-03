@@ -23,7 +23,7 @@ def feedback(sock):
 
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('127.0.0.1', 13136))
+    s.connect(('127.0.0.1', 13135))
 
     sock = Sock(s)
 

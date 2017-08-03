@@ -9,7 +9,7 @@ BUFFER_SIZE = 8192
 class RemoteFileManager():
 
     def __init__(self):
-        self._current_directory = Config.config().valueof('default_directory')
+        self._current_directory = Config.get('DEFAULT_DIRECTORY')
         self._last_directory = '..'+self._current_directory
         os.chdir(self._current_directory)
         self._disk = Disk()
