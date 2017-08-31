@@ -29,6 +29,8 @@ def main():
 
     while True:
         cmd = raw_input('$:')
+        cmd_list = cmd.split()
+        cmd_len = len(cmd_list)
 
         if cmd == 'disk':
             sock.send('disk')
@@ -38,20 +40,39 @@ def main():
             sock.send('df')
             feedback(sock)
 
-        if cmd.split()[0] == 'get':
-            sock.send('get '+cmd.split()[1])
-            feedback(sock)
+        if cmd_list[0] == 'get':
+            if cmd_len == 2:
+                sock.send('get '+cmd_list[1])
+                feedback(sock)
+            else:
+                print 'Invalid input'
 
         if cmd == 'pwd':
             sock.send(cmd)
             print sock.recv()
 
         if cmd.split()[0] == 'cd':
-            sock.send('cd '+cmd.split()[1])
-            feedback(sock)
+            if cmd_len == 2:
+                sock.send('cd '+cmd_list[1])
+                feedback(sock)
+            else:
+                print 'Invalid input'
+
+
+        if cmd.split()[0] == 'ls':
+            if cmd_len == 2:
+                sock.send('ls '+cmd_list[1])
+                feedback(sock)
+            elif cmd_len == 1:
+                sock.send('ls')
+                feedback(sock)
+            else:
+                print 'Invalid input'
+
+        if cmd == 'shutdown':
+            sock.send('shutdown')
 
         if cmd == 'exit':
-            sock.send('exit')
             break
             
     s.close()

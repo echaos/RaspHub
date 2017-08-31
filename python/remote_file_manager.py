@@ -56,6 +56,7 @@ class RemoteFileManager():
             client_sock.senderr(e)
         else:
             n = len(file_list)
+            print n
             client_sock.send(str(n)) #Send file number
             
             if n >= 0:
@@ -79,6 +80,8 @@ class RemoteFileManager():
                         
                     self._last_directory = self._current_directory
                     self._current_directory = path
+
+                    os.chdir(path)
             else:
                 raise Exception(path+' is not a right directory.')
 

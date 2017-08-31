@@ -55,7 +55,7 @@ class ClientThread(threading.Thread):
                     file_manager.send_currentfilelist(self.client_sock)
 
             #Shutdown the sever
-            elif cmd_list[0] == 'exit':
+            elif cmd_list[0] == 'shutdown':
                 self.status.value = False
                 os._exit(0)
 
